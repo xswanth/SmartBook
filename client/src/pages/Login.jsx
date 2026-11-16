@@ -25,9 +25,15 @@ function Login() {
       if (!res.ok) {
         setError(data.error || 'Login failed');
       } else {
-        // Save session & user info so Home page stays logged in
         localStorage.setItem('smartbook_token', data.session.access_token);
         localStorage.setItem('smartbook_user', JSON.stringify(data.profile));
+
+        if (data.provider) {
+          localStorage.setItem('smartbook_provider', JSON.stringify(data.provider));
+        } else {
+          localStorage.removeItem('smartbook_provider');
+        }
+
         navigate('/home');
       }
     } catch {
@@ -57,7 +63,11 @@ function Login() {
           required
           style={{ padding: '10px', fontSize: '16px' }}
         />
-        <button type="submit" disabled={loading} style={{ padding: '10px', fontSize: '16px', cursor: 'pointer' }}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ padding: '10px', fontSize: '16px', cursor: 'pointer' }}
+        >
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
