@@ -82,7 +82,7 @@ function Register() {
   };
 
   return (
-    <div style={{ maxWidth: '450px', margin: '40px auto', fontFamily: 'sans-serif' }}>
+    <div className="auth-page" style={{ maxWidth: '450px', margin: '40px auto', fontFamily: 'sans-serif' }}>
       <h2>SmartBook — Create Account</h2>
       <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <input
