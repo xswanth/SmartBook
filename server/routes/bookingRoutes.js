@@ -147,6 +147,24 @@ router.get('/user/:userId', async (req, res) => {
   res.json(data);
 });
 
+// PATCH /api/bookings/user/:userId - Update customer's name and phone
+router.patch('/user/:userId', async (req, res) => {
+  const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
+  const phone = typeof req.body.phone === 'string' ? req.body.phone.trim() : '';
+
+  if (!name) return res.status(400).json({ error: 'Name is required' });
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ name, phone })
+    .eq('id', req.params.userId)
+    .select('id, name, phone')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 // GET /api/bookings/provider/:providerId - Provider's incoming bookings (Member 5)
 router.get('/provider/:providerId', async (req, res) => {
   const { data, error } = await supabase
@@ -154,6 +172,55 @@ router.get('/provider/:providerId', async (req, res) => {
     .select('*, profiles(name, email, phone)')
     .eq('provider_id', req.params.providerId)
     .order('appointment_date', { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// PATCH /api/bookings/:id/reschedule - Change an appointment's date and time
+router.patch('/:id/reschedule', async (req, res) => {
+  const { appointment_date, appointment_time } = req.body;
+
+  if (
+    typeof appointment_date !== 'string'
+    || !/^\d{4}-\d{2}-\d{2}$/.test(appointment_date)
+    || typeof appointment_time !== 'string'
+    || !/^\d{2}:\d{2}(:\d{2})?$/.test(appointment_time)
+  ) {
+    return res.status(400).json({ error: 'A valid appointment_date and appointment_time are required' });
+  }
+
+  const { data: appointment, error: appointmentError } = await supabase
+    .from('appointments')
+    .select('id, status, provider_id')
+    .eq('id', req.params.id)
+    .single();
+
+  if (appointmentError) return res.status(404).json({ error: 'Appointment not found' });
+  if (!['pending', 'confirmed'].includes(appointment.status)) {
+    return res.status(409).json({ error: 'Only pending or confirmed appointments can be rescheduled' });
+  }
+
+  const { data: existing, error: existingError } = await supabase
+    .from('appointments')
+    .select('id')
+    .eq('provider_id', appointment.provider_id)
+    .eq('appointment_date', appointment_date)
+    .eq('appointment_time', appointment_time)
+    .neq('status', 'cancelled')
+    .neq('id', appointment.id);
+
+  if (existingError) return res.status(500).json({ error: existingError.message });
+  if (existing?.length) {
+    return res.status(409).json({ error: 'This time slot is already booked.' });
+  }
+
+  const { data, error } = await supabase
+    .from('appointments')
+    .update({ appointment_date, appointment_time })
+    .eq('id', appointment.id)
+    .select()
+    .single();
 
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
