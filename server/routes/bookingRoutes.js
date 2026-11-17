@@ -42,11 +42,12 @@ router.get('/slots', async (req, res) => {
   // 1. Get provider schedule
   const { data: provider, error: provErr } = await supabase
     .from('providers')
-    .select('start_time, end_time, slot_duration, working_days')
+    .select('start_time, end_time, slot_duration, working_days, is_approved')
     .eq('id', provider_id)
     .single();
 
   if (provErr || !provider) return res.status(404).json({ error: 'Provider not found' });
+  if (!provider.is_approved) return res.status(403).json({ error: 'Provider is awaiting admin approval' });
 
   // Check if selected date is in provider's working_days
   const { isWorkingDay } = checkWorkingDay(date, provider.working_days);
@@ -99,12 +100,15 @@ router.post('/', async (req, res) => {
   // Verify provider exists and works on the selected day
   const { data: provider, error: provErr } = await supabase
     .from('providers')
-    .select('working_days')
+    .select('working_days, is_approved')
     .eq('id', provider_id)
     .single();
 
   if (provErr || !provider) {
     return res.status(404).json({ error: 'Provider not found' });
+  }
+  if (!provider.is_approved) {
+    return res.status(403).json({ error: 'Provider is awaiting admin approval' });
   }
 
   const { isWorkingDay, dayName } = checkWorkingDay(appointment_date, provider.working_days);
@@ -167,14 +171,42 @@ router.patch('/user/:userId', async (req, res) => {
 
 // GET /api/bookings/provider/:providerId - Provider's incoming bookings (Member 5)
 router.get('/provider/:providerId', async (req, res) => {
-  const { data, error } = await supabase
+  const { data: provider, error: providerError } = await supabase
+    .from('providers')
+    .select('is_approved')
+    .eq('id', req.params.providerId)
+    .maybeSingle();
+
+  if (providerError) return res.status(500).json({ error: providerError.message });
+  if (!provider) return res.status(404).json({ error: 'Provider not found' });
+  if (!provider.is_approved) return res.json([]);
+
+  const { data: bookings, error } = await supabase
     .from('appointments')
-    .select('*, profiles(name, email, phone)')
+    .select('*')
     .eq('provider_id', req.params.providerId)
     .order('appointment_date', { ascending: true });
 
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+
+  const userIds = [...new Set((bookings || []).map((booking) => booking.user_id).filter(Boolean))];
+  let profiles = [];
+
+  if (userIds.length > 0) {
+    const { data, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, name, email, phone')
+      .in('id', userIds);
+
+    if (profilesError) return res.status(500).json({ error: profilesError.message });
+    profiles = data || [];
+  }
+
+  const profilesById = new Map(profiles.map((profile) => [profile.id, profile]));
+  res.json((bookings || []).map((booking) => ({
+    ...booking,
+    profiles: profilesById.get(booking.user_id) || null,
+  })));
 });
 
 // PATCH /api/bookings/:id/reschedule - Change an appointment's date and time

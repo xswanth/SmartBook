@@ -278,11 +278,11 @@ function AdminDashboard() {
                         {b.provider_name || b.providers?.name || 'N/A'}
                       </td>
                       <td style={tdStyle}>
-                        {b.service_name || b.category || 'N/A'}
+                        {b.service_name || b.providers?.category || 'N/A'}
                       </td>
                       <td style={tdStyle}>
-                        {b.booking_date
-                          ? new Date(b.booking_date).toLocaleDateString()
+                        {b.appointment_date
+                          ? new Date(b.appointment_date).toLocaleDateString()
                           : 'N/A'}
                       </td>
                       <td style={tdStyle}>

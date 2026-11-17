@@ -44,40 +44,43 @@ function Login() {
   };
 
   return (
-    <div className="auth-page" style={{ maxWidth: '400px', margin: '60px auto', fontFamily: 'sans-serif' }}>
-      <h2>SmartBook — Login</h2>
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <main className="auth-screen">
+      <section className="auth-card auth-card-login">
+        <span className="auth-eyebrow">SMARTBOOK</span>
+        <h1>Welcome back</h1>
+        <p className="auth-description">Sign in to continue to your account.</p>
+        <form className="auth-form" onSubmit={handleLogin}>
         <input
           type="email"
           placeholder="Email"
+          aria-label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ padding: '10px', fontSize: '16px' }}
         />
         <input
           type="password"
           placeholder="Password"
+          aria-label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ padding: '10px', fontSize: '16px' }}
         />
         <button
           type="submit"
           disabled={loading}
-          style={{ padding: '10px', fontSize: '16px', cursor: 'pointer' }}
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
 
-      {error && <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>}
+        {error && <p className="auth-error" role="alert">{error}</p>}
 
-      <p style={{ marginTop: '16px' }}>
-        New to SmartBook? <Link to="/register">Create an account</Link>
-      </p>
-    </div>
+        <p className="auth-switch">
+          New to SmartBook? <Link to="/register">Create an account</Link>
+        </p>
+      </section>
+    </main>
   );
 }
 

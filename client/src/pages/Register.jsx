@@ -82,71 +82,74 @@ function Register() {
   };
 
   return (
-    <div className="auth-page" style={{ maxWidth: '450px', margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h2>SmartBook — Create Account</h2>
-      <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <main className="auth-screen auth-screen-register">
+      <section className="auth-card auth-card-register">
+        <span className="auth-eyebrow">SMARTBOOK</span>
+        <h1>Create your account</h1>
+        <p className="auth-description">A few details to get started.</p>
+        <form className="auth-form" onSubmit={handleRegister}>
         <input
           type="text"
           placeholder="Full Name"
+          aria-label="Full name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          style={{ padding: '10px', fontSize: '15px' }}
         />
         <input
           type="email"
           placeholder="Email"
+          aria-label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ padding: '10px', fontSize: '15px' }}
         />
         <input
           type="tel"
           placeholder="Phone Number"
+          aria-label="Phone number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          style={{ padding: '10px', fontSize: '15px' }}
         />
         <input
           type="password"
           placeholder="Password (min 6 chars)"
+          aria-label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           minLength={6}
           required
-          style={{ padding: '10px', fontSize: '15px' }}
         />
 
-        <label style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '4px' }}>
+        <label className="auth-field-label">
           Register As:
         </label>
         <select
+          aria-label="Register as"
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          style={{ padding: '10px', fontSize: '15px' }}
         >
           <option value="customer">Customer (Book Appointments)</option>
           <option value="provider">Service Provider (Manage Schedule)</option>
         </select>
 
         {role === 'provider' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '12px', border: '1px solid #444', borderRadius: '6px' }}>
-            <strong style={{ fontSize: '15px' }}>Business & Schedule Details</strong>
+          <div className="provider-fields">
+            <strong>Business &amp; Schedule Details</strong>
 
             <input
               type="text"
               placeholder="Clinic / Salon / Business Name"
+              aria-label="Business name"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
               required
-              style={{ padding: '10px', fontSize: '15px' }}
             />
 
             <select
+              aria-label="Business category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              style={{ padding: '10px', fontSize: '15px' }}
             >
               <option value="doctor">Doctor / Clinic</option>
               <option value="hospital">Hospital</option>
@@ -157,35 +160,33 @@ function Register() {
             <input
               type="text"
               placeholder="Location / City"
+              aria-label="Location or city"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               required
-              style={{ padding: '10px', fontSize: '15px' }}
             />
 
             <textarea
               placeholder="Short description of services"
+              aria-label="Description of services"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              style={{ padding: '10px', fontSize: '15px' }}
             />
 
             <div>
-              <span style={{ fontSize: '14px', display: 'block', marginBottom: '6px' }}>Working Days:</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <span className="auth-field-label">Working days:</span>
+              <div className="auth-days">
                 {DAYS_LIST.map((day) => (
                   <button
                     type="button"
                     key={day}
                     onClick={() => toggleDay(day)}
+                    aria-pressed={selectedDays.includes(day)}
                     style={{
-                      padding: '6px 10px',
-                      cursor: 'pointer',
-                      borderRadius: '4px',
-                      border: '1px solid #666',
-                      backgroundColor: selectedDays.includes(day) ? '#2563eb' : 'transparent',
-                      color: selectedDays.includes(day) ? '#fff' : 'inherit',
+                      backgroundColor: selectedDays.includes(day) ? '#356b58' : '#fff',
+                      borderColor: selectedDays.includes(day) ? '#356b58' : '#d9e2dc',
+                      color: selectedDays.includes(day) ? '#fff' : '#59665e',
                     }}
                   >
                     {day}
@@ -194,37 +195,37 @@ function Register() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '13px', display: 'block', marginBottom: '4px' }}>Start Time</label>
+            <div className="auth-time-fields">
+              <div>
+                <label className="auth-field-label">Start time</label>
                 <input
                   type="time"
+                  aria-label="Start time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '8px', fontSize: '15px', boxSizing: 'border-box' }}
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '13px', display: 'block', marginBottom: '4px' }}>End Time</label>
+              <div>
+                <label className="auth-field-label">End time</label>
                 <input
                   type="time"
+                  aria-label="End time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '8px', fontSize: '15px', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
             <div>
-              <label style={{ fontSize: '13px', display: 'block', marginBottom: '4px' }}>
-                Appointment Slot Duration
+              <label className="auth-field-label">
+                Appointment slot duration
               </label>
               <select
+                aria-label="Appointment slot duration"
                 value={slotDuration}
                 onChange={(e) => setSlotDuration(e.target.value)}
-                style={{ width: '100%', padding: '10px', fontSize: '15px' }}
               >
                 <option value={15}>15 minutes</option>
                 <option value={30}>30 minutes</option>
@@ -238,18 +239,18 @@ function Register() {
         <button
           type="submit"
           disabled={loading}
-          style={{ padding: '12px', fontSize: '16px', cursor: 'pointer', marginTop: '4px' }}
         >
           {loading ? 'Creating account...' : 'Register'}
         </button>
       </form>
 
-      {error && <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>}
+        {error && <p className="auth-error" role="alert">{error}</p>}
 
-      <p style={{ marginTop: '16px' }}>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
-    </div>
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </section>
+    </main>
   );
 }
 

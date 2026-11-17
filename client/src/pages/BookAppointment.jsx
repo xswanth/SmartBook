@@ -123,23 +123,23 @@ function BookAppointment() {
     : provider.working_days;
 
   return (
-    <div style={{ maxWidth: '560px', margin: '30px auto', padding: '0 16px', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: '20px', borderBottom: '1px solid #333', paddingBottom: '12px' }}>
-        <h2 style={{ margin: '0 0 6px 0' }}>Book with {provider.name}</h2>
+    <div style={{ maxWidth: '560px', margin: '30px auto', padding: '0 16px', fontFamily: 'sans-serif', color: '#111827' }}>
+      <div style={{ marginBottom: '20px', borderBottom: '1px solid #d1d5db', paddingBottom: '12px' }}>
+        <h2 style={{ margin: '0 0 6px 0', color: '#111827' }}>Book with {provider.name}</h2>
         {provider.category && (
-          <p style={{ margin: '0 0 4px 0', color: '#9ca3af', fontSize: '0.95rem' }}>
+          <p style={{ margin: '0 0 4px 0', color: '#4b5563', fontSize: '0.95rem' }}>
             {provider.category} {provider.location ? `• ${provider.location}` : ''}
           </p>
         )}
-        <p style={{ margin: 0, color: '#93c5fd', fontSize: '0.9rem' }}>
+        <p style={{ margin: 0, color: '#1d4ed8', fontSize: '0.9rem' }}>
           <strong>Working Days:</strong> {formattedWorkingDays || 'Not specified'}
         </p>
       </div>
 
       <form onSubmit={handleBook} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-        {/* Step 1: Select Date (blocks past dates & non-working days) */}
+        {/* Step 1: Select Date */}
         <div>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: '#111827' }}>
             1. Select Date:
           </label>
           <input
@@ -151,7 +151,9 @@ function BookAppointment() {
             style={{
               padding: '10px',
               borderRadius: '6px',
-              border: '1px solid #4b5563',
+              border: '1px solid #9ca3af',
+              backgroundColor: '#ffffff',
+              color: '#111827',
               width: '100%',
               boxSizing: 'border-box',
               fontSize: '0.95rem',
@@ -160,9 +162,9 @@ function BookAppointment() {
           {dateError && (
             <p
               style={{
-                color: '#f87171',
-                backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.35)',
+                color: '#b91c1c',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fca5a5',
                 padding: '8px 12px',
                 borderRadius: '6px',
                 marginTop: '8px',
@@ -174,22 +176,22 @@ function BookAppointment() {
           )}
         </div>
 
-        {/* Step 2: Improved Time Slot Selection UI */}
+        {/* Step 2: Time Slot Selection */}
         {date && !dateError && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label style={{ fontWeight: '600' }}>2. Select Time Slot:</label>
-              <div style={{ display: 'flex', gap: '10px', fontSize: '0.8rem', color: '#9ca3af' }}>
-                <span><span style={{ color: '#60a5fa' }}>■</span> Selected</span>
-                <span><span style={{ color: '#22c55e' }}>■</span> Available</span>
-                <span><span style={{ color: '#6b7280' }}>■</span> Booked</span>
+              <label style={{ fontWeight: '600', color: '#111827' }}>2. Select Time Slot:</label>
+              <div style={{ display: 'flex', gap: '10px', fontSize: '0.8rem', color: '#4b5563' }}>
+                <span><span style={{ color: '#2563eb' }}>■</span> Selected</span>
+                <span><span style={{ color: '#16a34a' }}>■</span> Available</span>
+                <span><span style={{ color: '#9ca3af' }}>■</span> Booked</span>
               </div>
             </div>
 
             {loadingSlots ? (
-              <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Loading available slots...</p>
+              <p style={{ color: '#4b5563', fontSize: '0.9rem' }}>Loading available slots...</p>
             ) : slots.length === 0 ? (
-              <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>No time slots available on this date.</p>
+              <p style={{ color: '#4b5563', fontSize: '0.9rem' }}>No time slots available on this date.</p>
             ) : (
               <div
                 style={{
@@ -210,25 +212,29 @@ function BookAppointment() {
                         padding: '10px 8px',
                         borderRadius: '8px',
                         border: isSelected
-                          ? '2px solid #60a5fa'
+                          ? '2px solid #1d4ed8'
                           : s.isBooked
-                          ? '1px solid #374151'
-                          : '1px solid #4b5563',
+                          ? '1px solid #d1d5db'
+                          : '1px solid #9ca3af',
                         cursor: s.isBooked ? 'not-allowed' : 'pointer',
                         backgroundColor: isSelected
                           ? '#2563eb'
                           : s.isBooked
-                          ? '#1f2937'
-                          : 'rgba(255, 255, 255, 0.05)',
-                        color: s.isBooked ? '#6b7280' : '#fff',
+                          ? '#e5e7eb'
+                          : '#ffffff',
+                        color: isSelected
+                          ? '#ffffff'
+                          : s.isBooked
+                          ? '#6b7280'
+                          : '#111827',
                         textDecoration: s.isBooked ? 'line-through' : 'none',
-                        fontWeight: isSelected ? '700' : '500',
+                        fontWeight: isSelected ? '700' : '600',
                         fontSize: '0.9rem',
                         transition: 'all 0.15s ease',
                       }}
                     >
                       {s.time}
-                      {s.isBooked && <div style={{ fontSize: '0.7rem' }}>Booked</div>}
+                      {s.isBooked && <div style={{ fontSize: '0.7rem', fontWeight: '400' }}>Booked</div>}
                     </button>
                   );
                 })}
@@ -237,10 +243,10 @@ function BookAppointment() {
           </div>
         )}
 
-        {/* Optional Notes */}
+        {/* Step 3: Optional Notes */}
         {selectedTime && !dateError && (
           <div>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: '#111827' }}>
               3. Notes or Reason for Visit (Optional):
             </label>
             <textarea
@@ -251,7 +257,9 @@ function BookAppointment() {
               style={{
                 padding: '10px',
                 borderRadius: '6px',
-                border: '1px solid #4b5563',
+                border: '1px solid #9ca3af',
+                backgroundColor: '#ffffff',
+                color: '#111827',
                 width: '100%',
                 boxSizing: 'border-box',
                 fontSize: '0.95rem',
@@ -260,17 +268,18 @@ function BookAppointment() {
           </div>
         )}
 
-        {/* Step 3: Clear Booking Summary Before Confirming */}
+        {/* Booking Summary */}
         {date && selectedTime && !dateError && (
           <div
             style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.14)',
-              border: '1px solid #3b82f6',
+              backgroundColor: '#eff6ff',
+              border: '1px solid #93c5fd',
               borderRadius: '10px',
               padding: '14px 16px',
+              color: '#1e3a8a',
             }}
           >
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '1.05rem', color: '#93c5fd' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '1.05rem', color: '#1d4ed8' }}>
               Booking Summary
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.92rem' }}>
@@ -291,8 +300,8 @@ function BookAppointment() {
             padding: '12px',
             borderRadius: '8px',
             border: 'none',
-            backgroundColor: !selectedTime || dateError ? '#374151' : '#2563eb',
-            color: !selectedTime || dateError ? '#9ca3af' : '#fff',
+            backgroundColor: !selectedTime || dateError ? '#9ca3af' : '#2563eb',
+            color: '#ffffff',
             fontWeight: '600',
             fontSize: '1rem',
             cursor: !selectedTime || dateError || submitting ? 'not-allowed' : 'pointer',

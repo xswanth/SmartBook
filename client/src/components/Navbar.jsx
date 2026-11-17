@@ -1,36 +1,45 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('smartbook_user') || 'null');
+  const location = useLocation();
+  let user = null;
+
+  try {
+    user = JSON.parse(localStorage.getItem('smartbook_user') || 'null');
+  } catch {
+    localStorage.removeItem('smartbook_user');
+  }
 
   if (!user) return null;
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
+    localStorage.removeItem('smartbook_user');
+    localStorage.removeItem('smartbook_token');
+    localStorage.removeItem('smartbook_provider');
+    navigate('/login', { replace: true });
   };
 
   return (
     <nav className="site-nav">
       <div className="site-nav-inner">
         <Link className="site-brand" to="/home">SmartBook</Link>
-        <div className="site-nav-links">
-          <Link to="/home">Home</Link>
+        <div className="site-nav-links" key={location.pathname}>
+          <NavLink to="/home" end>Home</NavLink>
 
           {user.role === 'customer' && (
             <>
-              <Link to="/explore">Find Services</Link>
-              <Link to="/my-bookings">My Bookings</Link>
+              <NavLink to="/explore">Find Services</NavLink>
+              <NavLink to="/my-bookings">My Bookings</NavLink>
             </>
           )}
 
           {user.role === 'provider' && (
-            <Link to="/provider-dashboard">Manage Schedule</Link>
+            <NavLink to="/provider-dashboard">Manage Schedule</NavLink>
           )}
 
           {(user.role === 'admin' || user.role === 'developer') && (
-            <Link to="/admin">Admin Panel</Link>
+            <NavLink className="site-nav-admin" to="/admin">Admin Dashboard</NavLink>
           )}
         </div>
       </div>
