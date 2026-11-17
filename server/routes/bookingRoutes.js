@@ -2,11 +2,41 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 
+// Helper: Check if a YYYY-MM-DD date falls on one of the provider's working_days
+const checkWorkingDay = (dateString, workingDays) => {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const [year, month, day] = dateString.split('-').map(Number);
+  const dayName = days[new Date(year, month - 1, day).getDay()];
+
+  // Support both comma-separated string ("Mon,Tue,Wed") and array (["Mon", "Tue"])
+  const daysList = Array.isArray(workingDays)
+    ? workingDays
+    : typeof workingDays === 'string' && workingDays.trim() !== ''
+    ? workingDays.split(',').map((d) => d.trim())
+    : [];
+
+  if (daysList.length === 0) {
+    return { isWorkingDay: true, dayName };
+  }
+
+  const isWorkingDay = daysList.some(
+    (d) => d.toLowerCase().startsWith(dayName.toLowerCase().slice(0, 3))
+  );
+
+  return { isWorkingDay, dayName };
+};
+
 // GET /api/bookings/slots?provider_id=...&date=YYYY-MM-DD (Member 3)
 router.get('/slots', async (req, res) => {
   const { provider_id, date } = req.query;
   if (!provider_id || !date) {
     return res.status(400).json({ error: 'provider_id and date are required' });
+  }
+
+  // Block past dates
+  const today = new Date().toISOString().split('T')[0];
+  if (date < today) {
+    return res.json([]);
   }
 
   // 1. Get provider schedule
@@ -17,6 +47,12 @@ router.get('/slots', async (req, res) => {
     .single();
 
   if (provErr || !provider) return res.status(404).json({ error: 'Provider not found' });
+
+  // Check if selected date is in provider's working_days
+  const { isWorkingDay } = checkWorkingDay(date, provider.working_days);
+  if (!isWorkingDay) {
+    return res.json([]);
+  }
 
   // 2. Get already booked times for that date
   const { data: booked } = await supabase
@@ -53,6 +89,28 @@ router.get('/slots', async (req, res) => {
 // POST /api/bookings - Create a new appointment (Member 3)
 router.post('/', async (req, res) => {
   const { user_id, provider_id, appointment_date, appointment_time, notes = '' } = req.body;
+
+  // Block past dates
+  const today = new Date().toISOString().split('T')[0];
+  if (appointment_date < today) {
+    return res.status(400).json({ error: 'Cannot book appointments in the past.' });
+  }
+
+  // Verify provider exists and works on the selected day
+  const { data: provider, error: provErr } = await supabase
+    .from('providers')
+    .select('working_days')
+    .eq('id', provider_id)
+    .single();
+
+  if (provErr || !provider) {
+    return res.status(404).json({ error: 'Provider not found' });
+  }
+
+  const { isWorkingDay, dayName } = checkWorkingDay(appointment_date, provider.working_days);
+  if (!isWorkingDay) {
+    return res.status(400).json({ error: `Provider does not work on ${dayName}s.` });
+  }
 
   // Prevent double booking
   const { data: existing } = await supabase

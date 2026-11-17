@@ -44,7 +44,7 @@ function Login() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '60px auto', fontFamily: 'sans-serif' }}>
+    <div className="auth-page" style={{ maxWidth: '400px', margin: '60px auto', fontFamily: 'sans-serif' }}>
       <h2>SmartBook — Login</h2>
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <input
